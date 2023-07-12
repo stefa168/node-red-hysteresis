@@ -4,7 +4,7 @@
 		color: '#E2D96E',
 		defaults: {
 			name: {value: ''},
-			ThresholdType: {value:'fixed'},
+			ThresholdType: {value: 'fixed'},
 			//ThresholdRising: {value: "", required: true, validate: RED.validators.number()},
 			//ThresholdFalling: {value: "", required: true, validate: RED.validators.number()},
 			ThresholdRising: {value: ''},
@@ -27,14 +27,14 @@
 		inputs: 1,
 		outputs: 1,
 		icon: 'hysteresis.png',
-		label: function() {
+		label: function () {
 			return this.name || 'hysteresis';
 		},
-		labelStyle: function() {
-			return this.name?'node_label_italic':'';
+		labelStyle: function () {
+			return this.name ? 'node_label_italic' : '';
 		},
-		oneditprepare: function() {
-			$('#node-input-ThresholdType').change(function() {
+		oneditprepare: function () {
+			$('#node-input-ThresholdType').change(function () {
 				if ($(this).val() === 'fixed') {
 					$('.form-row-ThresholdTypeFixed').show();
 					$('.form-row-ThresholdTypeDynamic').hide();
@@ -43,22 +43,22 @@
 					$('.form-row-ThresholdTypeDynamic').show();
 				}
 			});
-			var optionOriginalPayload = {value:'pay', label:'Original Message', hasValue:false};
-			var optionOriginalTopic = {value:'top', label:'Original Topic', hasValue:false};
+			var optionOriginalPayload = {value: 'pay', label: 'Original Message', hasValue: false};
+			var optionOriginalTopic = {value: 'top', label: 'Original Topic', hasValue: false};
 			$('#node-input-OutRisingValue').typedInput({
 				default: 'pay',
 				typeField: $('#node-input-OutRisingType'),
-				types:['str', 'num', 'bool', optionOriginalPayload]
+				types: ['str', 'num', 'bool', optionOriginalPayload]
 			});
 			$('#node-input-OutFallingValue').typedInput({
 				default: 'pay',
 				typeField: $('#node-input-OutFallingType'),
-				types:['str', 'num', 'bool', optionOriginalPayload]
+				types: ['str', 'num', 'bool', optionOriginalPayload]
 			});
 			$('#node-input-OutTopicValue').typedInput({
 				default: 'top',
 				typeField: $('#node-input-OutTopicType'),
-				types:['str', optionOriginalTopic]
+				types: ['str', optionOriginalTopic]
 			});
 		}
 	});
@@ -132,6 +132,7 @@
 		<input type="hidden" id="node-input-OutTopicType">
 		<input type="text" id="node-input-OutTopicValue" style="width: 280px">
 	</div>
+
 </script>
 
 <script type="text/x-red" data-help-name="hysteresis">
@@ -179,4 +180,5 @@
 		the temperature rises above B. For instance, if one wishes to maintain a temperature of 20 °C then one might set the thermostat to turn the heater on 
 		when the temperature drops to below 18 °C and off when the temperature exceeds 22 °C.</p> 
 		<p>Similarly, a pressure switch can be designed to exhibit hysteresis, with pressure set-points substituted for temperature thresholds.</p>
+
 </script>

@@ -48,7 +48,6 @@ module.exports = function(RED) {
 		// Define a node context
 		var nodeContext = this.context();
 
-		// eslint-disable-next-line prefer-const
 		let node = this;
 		let TriggerValueRising = nodeContext.get('TriggerValueRising') || '';
 		let TriggerValueFalling = nodeContext.get('TriggerValueFalling') || '';
@@ -69,7 +68,7 @@ module.exports = function(RED) {
 		this.on('input', function(msg, send, done) {
 			// For maximum backwards compatibility, check that send exists.
 			// If this node is installed in Node-RED 0.x, it will need to
-			// fallback to using `node.send`
+			// fall back to using `node.send`
 			send = send || function() {
 				node.send.apply(node, arguments);
 			};
