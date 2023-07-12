@@ -1,4 +1,4 @@
-# node-red-contrib-hysteresis
+# node-red-hysteresis
 
 [![npm version](https://badge.fury.io/js/node-red-contrib-hysteresis.svg)](https://badge.fury.io/js/node-red-contrib-hysteresis)
 
