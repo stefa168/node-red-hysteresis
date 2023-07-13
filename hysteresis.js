@@ -1,4 +1,4 @@
-module.exports = function(RED) {
+module.exports = function (RED) {
 
 	function HysteresisNode(config) {
 		RED.nodes.createNode(this, config);
@@ -18,6 +18,7 @@ module.exports = function(RED) {
 		this.OutFallingValue = config.OutFallingValue;
 		this.OutTopicType = config.OutTopicType;
 		this.OutTopicValue = config.OutTopicValue || '';
+		this.PayloadProperty = config.PayloadProperty || 'payload';
 
 		if (this.OutRisingType !== 'pay') {
 			if ((this.OutRisingType === 'num') && (!Number.isNaN(this.OutRisingValue))) {
@@ -60,30 +61,30 @@ module.exports = function(RED) {
 
 		// Set initial status
 		if (!TriggerValueRising) {
-			node.status({fill:'red', shape:'ring', text: 'Thresholds missing'});
+			node.status({fill: 'red', shape: 'ring', text: 'Thresholds missing'});
 		} else {
-			node.status({fill:'yellow', shape:'ring', text: TriggerValueFalling + '/--/' + TriggerValueRising});
+			node.status({fill: 'yellow', shape: 'ring', text: TriggerValueFalling + '/--/' + TriggerValueRising});
 		}
 
-		this.on('input', function(msg, send, done) {
+		this.on('input', function (msg, send, done) {
 			// For maximum backwards compatibility, check that send exists.
 			// If this node is installed in Node-RED 0.x, it will need to
 			// fall back to using `node.send`
-			send = send || function() {
+			send = send || function () {
 				node.send.apply(node, arguments);
 			};
 
 			// Check for proper topic when using dynamic threshold
-			if (this.ThresholdType === 'dynamic' && msg.topic === this.TopicThreshold && !Number.isNaN(msg.payload)) {
-				TriggerValueRising = Number.parseFloat(msg.payload) + Number.parseFloat(this.ThresholdDeltaRising);
-				TriggerValueFalling = Number.parseFloat(msg.payload) - Number.parseFloat(this.ThresholdDeltaFalling);
+			if (this.ThresholdType === 'dynamic' && msg.topic === this.TopicThreshold && !Number.isNaN(msg[this.PayloadProperty])) {
+				TriggerValueRising = Number.parseFloat(msg[this.PayloadProperty]) + Number.parseFloat(this.ThresholdDeltaRising);
+				TriggerValueFalling = Number.parseFloat(msg[this.PayloadProperty]) - Number.parseFloat(this.ThresholdDeltaFalling);
 				nodeContext.set('TriggerValueRising', TriggerValueRising);
 				nodeContext.set('TriggerValueFalling', TriggerValueFalling);
-				node.status({fill:'yellow', shape:'ring', text: TriggerValueFalling + '/--/' + TriggerValueRising});
+				node.status({fill: 'yellow', shape: 'ring', text: TriggerValueFalling + '/--/' + TriggerValueRising});
 			}
 
 			// Raise error when receiving a 'TopicCurrent' payload but no dynamic threshold set
-			if (Object.prototype.hasOwnProperty.call(msg, 'payload') && this.ThresholdType === 'dynamic' &&
+			if (Object.prototype.hasOwnProperty.call(msg, this.PayloadProperty) && this.ThresholdType === 'dynamic' &&
 				!TriggerValueRising && msg.topic === this.TopicCurrent && this.DynRaiseError) {
 				const err = new Error('Thresholds missing');
 				if (err) {
@@ -104,10 +105,9 @@ module.exports = function(RED) {
 				msgNew.topic = this.OutTopicValue;
 			}
 
-			if ((Object.prototype.hasOwnProperty.call(msg, 'payload') && this.ThresholdType === 'fixed' && !Number.isNaN(msg.payload)) ||
-                (Object.prototype.hasOwnProperty.call(msg, 'payload') && this.ThresholdType === 'dynamic' &&
-                msg.topic === this.TopicCurrent && TriggerValueRising && !Number.isNaN(msg.payload))) {
-				const CurrentValue = Number.parseFloat(msg.payload);
+			if ((Object.prototype.hasOwnProperty.call(msg, this.PayloadProperty) && this.ThresholdType === 'fixed' && !Number.isNaN(msg[this.PayloadProperty])) ||
+				(Object.prototype.hasOwnProperty.call(msg, this.PayloadProperty) && this.ThresholdType === 'dynamic' && msg.topic === this.TopicCurrent && TriggerValueRising && !Number.isNaN(msg[this.PayloadProperty]))) {
+				const CurrentValue = Number.parseFloat(msg[this.PayloadProperty]);
 				// Cover the case where no initial values are known
 				if (this.InitialMessage && node.direction === '' && !Number.isNaN(CurrentValue)) {
 					if (CurrentValue >= TriggerValueRising) {
@@ -116,16 +116,28 @@ module.exports = function(RED) {
 						send(msgNew);
 						node.direction = 'high';
 						nodeContext.set('Direction', node.direction);
-						node.status({fill:'green', shape:'dot', text: TriggerValueFalling + '/' + CurrentValue + '/' + TriggerValueRising + ' (initial high band)'});
+						node.status({
+							fill: 'green',
+							shape: 'dot',
+							text: TriggerValueFalling + '/' + CurrentValue + '/' + TriggerValueRising + ' (initial high band)'
+						});
 					} else if ((CurrentValue > TriggerValueFalling) && (CurrentValue < TriggerValueRising)) {
-						node.status({fill:'green', shape:'dot', text: TriggerValueFalling + '/' + CurrentValue + '/' + TriggerValueRising + ' (initial dead band)'});
+						node.status({
+							fill: 'green',
+							shape: 'dot',
+							text: TriggerValueFalling + '/' + CurrentValue + '/' + TriggerValueRising + ' (initial dead band)'
+						});
 					} else if (CurrentValue <= TriggerValueFalling) {
 						msgNew.payload = (this.OutFallingType === 'pay' ? msgNew.payload : this.OutFallingValue);
 						msgNew.hystdirection = 'initial low';
 						send(msgNew);
 						node.direction = 'low';
 						nodeContext.set('Direction', node.direction);
-						node.status({fill:'blue', shape:'dot', text: TriggerValueFalling + '/' + CurrentValue + '/' + TriggerValueRising + ' (initial low band)'});
+						node.status({
+							fill: 'blue',
+							shape: 'dot',
+							text: TriggerValueFalling + '/' + CurrentValue + '/' + TriggerValueRising + ' (initial low band)'
+						});
 					}
 					// Last value known. Work as hysteresis
 				} else if (!Number.isNaN(CurrentValue) && node.LastValue) {
@@ -136,7 +148,11 @@ module.exports = function(RED) {
 						send(msgNew);
 						node.direction = 'high';
 						nodeContext.set('Direction', node.direction);
-						node.status({fill:'green', shape:'dot', text: TriggerValueFalling + '/' + CurrentValue + '/' + TriggerValueRising + ' (high band)'});
+						node.status({
+							fill: 'green',
+							shape: 'dot',
+							text: TriggerValueFalling + '/' + CurrentValue + '/' + TriggerValueRising + ' (high band)'
+						});
 						// falling
 					} else if (CurrentValue < node.LastValue && CurrentValue <= TriggerValueFalling && node.direction !== 'low') {
 						msgNew.payload = (this.OutFallingType === 'pay' ? msgNew.payload : this.OutFallingValue);
@@ -144,23 +160,59 @@ module.exports = function(RED) {
 						send(msgNew);
 						node.direction = 'low';
 						nodeContext.set('Direction', node.direction);
-						node.status({fill:'blue', shape:'dot', text: TriggerValueFalling + '/' + CurrentValue + '/' + TriggerValueRising + ' (low band)'});
+						node.status({
+							fill: 'blue',
+							shape: 'dot',
+							text: TriggerValueFalling + '/' + CurrentValue + '/' + TriggerValueRising + ' (low band)'
+						});
 					} else if (CurrentValue > node.LastValue && CurrentValue >= TriggerValueRising && node.direction === 'high') {
-						node.status({fill:'green', shape:'dot', text: TriggerValueFalling + '/' + CurrentValue + '/' + TriggerValueRising + ' (high band rising)'});
+						node.status({
+							fill: 'green',
+							shape: 'dot',
+							text: TriggerValueFalling + '/' + CurrentValue + '/' + TriggerValueRising + ' (high band rising)'
+						});
 					} else if (CurrentValue < node.LastValue && CurrentValue >= TriggerValueRising && node.direction === 'high') {
-						node.status({fill:'green', shape:'dot', text: TriggerValueFalling + '/' + CurrentValue + '/' + TriggerValueRising + ' (high band falling)'});
+						node.status({
+							fill: 'green',
+							shape: 'dot',
+							text: TriggerValueFalling + '/' + CurrentValue + '/' + TriggerValueRising + ' (high band falling)'
+						});
 					} else if (CurrentValue > node.LastValue && CurrentValue > TriggerValueFalling && CurrentValue < TriggerValueRising && node.direction === 'high') {
-						node.status({fill:'green', shape:'ring', text: TriggerValueFalling + '/' + CurrentValue + '/' + TriggerValueRising + ' (high dead band rising)'});
+						node.status({
+							fill: 'green',
+							shape: 'ring',
+							text: TriggerValueFalling + '/' + CurrentValue + '/' + TriggerValueRising + ' (high dead band rising)'
+						});
 					} else if (CurrentValue < node.LastValue && CurrentValue > TriggerValueFalling && CurrentValue < TriggerValueRising && node.direction === 'high') {
-						node.status({fill:'green', shape:'ring', text: TriggerValueFalling + '/' + CurrentValue + '/' + TriggerValueRising + ' (high dead band falling)'});
+						node.status({
+							fill: 'green',
+							shape: 'ring',
+							text: TriggerValueFalling + '/' + CurrentValue + '/' + TriggerValueRising + ' (high dead band falling)'
+						});
 					} else if (CurrentValue > node.LastValue && CurrentValue > TriggerValueFalling && CurrentValue < TriggerValueRising && node.direction === 'low') {
-						node.status({fill:'blue', shape:'ring', text: TriggerValueFalling + '/' + CurrentValue + '/' + TriggerValueRising + ' (low dead band rising)'});
+						node.status({
+							fill: 'blue',
+							shape: 'ring',
+							text: TriggerValueFalling + '/' + CurrentValue + '/' + TriggerValueRising + ' (low dead band rising)'
+						});
 					} else if (CurrentValue < node.LastValue && CurrentValue > TriggerValueFalling && CurrentValue < TriggerValueRising && node.direction === 'low') {
-						node.status({fill:'blue', shape:'ring', text: TriggerValueFalling + '/' + CurrentValue + '/' + TriggerValueRising + ' (low dead band falling)'});
+						node.status({
+							fill: 'blue',
+							shape: 'ring',
+							text: TriggerValueFalling + '/' + CurrentValue + '/' + TriggerValueRising + ' (low dead band falling)'
+						});
 					} else if (CurrentValue > node.LastValue && CurrentValue <= TriggerValueFalling && node.direction === 'low') {
-						node.status({fill:'blue', shape:'dot', text: TriggerValueFalling + '/' + CurrentValue + '/' + TriggerValueRising + ' (low band rising)'});
+						node.status({
+							fill: 'blue',
+							shape: 'dot',
+							text: TriggerValueFalling + '/' + CurrentValue + '/' + TriggerValueRising + ' (low band rising)'
+						});
 					} else if (CurrentValue < node.LastValue && CurrentValue <= TriggerValueFalling && node.direction === 'low') {
-						node.status({fill:'blue', shape:'dot', text: TriggerValueFalling + '/' + CurrentValue + '/' + TriggerValueFalling + ' (low band falling)'});
+						node.status({
+							fill: 'blue',
+							shape: 'dot',
+							text: TriggerValueFalling + '/' + CurrentValue + '/' + TriggerValueFalling + ' (low band falling)'
+						});
 					}
 				}
 				node.LastValue = CurrentValue;
@@ -172,5 +224,6 @@ module.exports = function(RED) {
 			}
 		});
 	}
-	RED.nodes.registerType('hysteresis', HysteresisNode);
+
+	RED.nodes.registerType('hysteresis2', HysteresisNode);
 };

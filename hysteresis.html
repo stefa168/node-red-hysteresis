@@ -1,18 +1,14 @@
 <script type="text/javascript">
-	RED.nodes.registerType('hysteresis', {
+	RED.nodes.registerType('hysteresis2', {
 		category: 'function',
 		color: '#E2D96E',
 		defaults: {
 			name: {value: ''},
 			ThresholdType: {value: 'fixed'},
-			//ThresholdRising: {value: "", required: true, validate: RED.validators.number()},
-			//ThresholdFalling: {value: "", required: true, validate: RED.validators.number()},
 			ThresholdRising: {value: ''},
 			ThresholdFalling: {value: ''},
 			TopicThreshold: {value: ''},
 			TopicCurrent: {value: ''},
-			//ThresholdDeltaRising: {value: "", validate: RED.validators.number()},
-			//ThresholdDeltaFalling: {value: "", validate: RED.validators.number()},
 			ThresholdDeltaRising: {value: ''},
 			ThresholdDeltaFalling: {value: ''},
 			InitialMessage: {checked: 'checked'},
@@ -22,7 +18,8 @@
 			OutFallingValue: {value: ''},
 			OutTopicType: {value: ''},
 			OutTopicValue: {value: ''},
-			DynRaiseError: {checked: 'unchecked'}
+			DynRaiseError: {checked: 'unchecked'},
+			PayloadProperty: {value: 'payload'} // Add new configuration option for payload property
 		},
 		inputs: 1,
 		outputs: 1,
@@ -43,18 +40,22 @@
 					$('.form-row-ThresholdTypeDynamic').show();
 				}
 			});
-			var optionOriginalPayload = {value: 'pay', label: 'Original Message', hasValue: false};
-			var optionOriginalTopic = {value: 'top', label: 'Original Topic', hasValue: false};
+
+			// Define the new option for specifying the payload object property
+			var optionPayloadProperty = {value: 'prop', label: 'Payload Property', hasValue: true};
+
 			$('#node-input-OutRisingValue').typedInput({
 				default: 'pay',
 				typeField: $('#node-input-OutRisingType'),
-				types: ['str', 'num', 'bool', optionOriginalPayload]
+				types: ['str', 'num', 'bool', optionPayloadProperty] // Add optionPayloadProperty to the types
 			});
+
 			$('#node-input-OutFallingValue').typedInput({
 				default: 'pay',
 				typeField: $('#node-input-OutFallingType'),
-				types: ['str', 'num', 'bool', optionOriginalPayload]
+				types: ['str', 'num', 'bool', optionPayloadProperty] // Add optionPayloadProperty to the types
 			});
+
 			$('#node-input-OutTopicValue').typedInput({
 				default: 'top',
 				typeField: $('#node-input-OutTopicType'),
@@ -64,11 +65,17 @@
 	});
 </script>
 
-<script type="text/x-red" data-template-name="hysteresis">
+<script type="text/x-red" data-template-name="hysteresis2">
 	<div class="form-row">
 		<label style="width: 140px !important" for="node-input-name"><i class="icon-tag"></i> Name</label>
 		<input type="text" id="node-input-name" placeholder="name" style="width: 280px">
 	</div>
+	<!-- Payload field setting -->
+	<div class="form-row">
+		<label style="width: 140px !important" for="node-input-PayloadProperty"><i class="fa fa-code"></i> Payload Property</label>
+		<input type="text" id="node-input-PayloadProperty" placeholder="property" style="width: 280px">
+	</div>
+	<!-- Threshold Settings -->
 	<div class="form-row">
 		<label style="width: 140px !important;"><h5><strong>Threshold Settings</strong></h5></label>
 	</div>
@@ -94,7 +101,7 @@
 		<input type="text" id="node-input-TopicThreshold" placeholder="value" style="width: 280px">
 	</div>
 	<div class="form-row form-row-ThresholdTypeDynamic">
-		<label style="width: 140px !important" for="node-input-TopicCurrent"><i class="fa fa-tasks"></i>Topic Current</label>
+		<label style="width: 140px !important" for="node-input-TopicCurrent"><i class="fa fa-tasks"></i> Topic Current</label>
 		<input type="text" id="node-input-TopicCurrent" placeholder="value" style="width: 280px">
 	</div>
 	<div class="form-row form-row-ThresholdTypeDynamic">
@@ -106,16 +113,16 @@
 		<input type="text" id="node-input-ThresholdDeltaFalling" placeholder="value" style="width: 280px">
 	</div>
 	<div class="form-row form-row-ThresholdTypeDynamic">
-		<label style="width: 140px !important;" for="node-input-DynRaiseError"> Raise error on missing threshold</label>
-		<input type="checkbox" id="node-input-DynRaiseError" style="margin-left: 0px; vertical-align: middle; width: auto !important;"> 
-	</div>	
-	<!-- Payload Options -->
+		<label style="width: 140px !important;" for="node-input-DynRaiseError">Raise error on missing threshold</label>
+		<input type="checkbox" id="node-input-DynRaiseError" style="margin-left: 0px; vertical-align: middle; width: auto !important;">
+	</div>
+	<!-- Output Settings -->
 	<div class="form-row">
 		<label style="width: 140px !important;"><h5><strong>Output Settings</strong></h5></label>
 	</div>
 	<div class="form-row">
-		<label style="width: 140px !important;" for="node-input-InitialMessage"> Send initial message</label>
-		<input type="checkbox" id="node-input-InitialMessage" style="margin-left: 0px; vertical-align: middle; width: auto !important;"> 
+		<label style="width: 140px !important" for="node-input-InitialMessage">Send initial message</label>
+		<input type="checkbox" id="node-input-InitialMessage" style="margin-left: 0px; vertical-align: middle; width: auto !important;">
 	</div>
 	<div class="form-row">
 		<label style="width: 140px !important" for="node-input-OutRisingType"><i class="fa fa-sign-out"></i> Upper Threshold</label>
@@ -133,9 +140,10 @@
 		<input type="text" id="node-input-OutTopicValue" style="width: 280px">
 	</div>
 
+
 </script>
 
-<script type="text/x-red" data-help-name="hysteresis">
+<script type="text/x-red" data-help-name="hysteresis2">
 	<p>Provides a hysteresis or deadband function.</p>
 	<h3>Details</h3>
 	<p>When a message arrives, the node will evaluate if the <code>msg.payload</code> is above a defined 
