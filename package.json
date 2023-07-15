@@ -1,6 +1,6 @@
 {
   "name": "@stefa168/node-red-hysteresis",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Adds hysteresis function to node-red",
   "main": "hysteresis.js",
   "files": [
@@ -28,7 +28,7 @@
       "hysteresis": "hysteresis.js"
     }
   },
-  "author": "Sineos",
+  "author": "Stefa168",
   "license": "GPL-3.0",
   "bugs": {
     "url": "https://github.com/Stefa168/node-red-hysteresis/issues"
