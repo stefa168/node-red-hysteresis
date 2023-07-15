@@ -4,6 +4,10 @@
 
 Provides a hysteresis or deadband function.
 
+> **Note**: this fork is currently being re-written, so the documentation below may not be accurate.  
+> Currently, only the fixed threshold mode is supported.
+> 
+> The main new feature is the ability to specify the payload path to use for the hysteresis value.
 ## Details
 
 When a message arrives, the node will evaluate if the `msg.payload` is above a defined `Upper Threshold` or below a `Lower Threshold`, while taking into account the previous value. Whenever this happens a `msg` is send to the output. Following rules do apply:
