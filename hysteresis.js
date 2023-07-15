@@ -103,6 +103,7 @@ module.exports = function (RED) {
 					});
 				}
 			} else if (node.lastValue !== undefined) {
+				// rising
 				if (currentValue > node.lastValue && currentValue >= ThresholdRising && node.direction !== 'high') {
 					newMessage.hysteresis_direction = 'high';
 					send(newMessage);
