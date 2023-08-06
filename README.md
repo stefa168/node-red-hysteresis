@@ -1,6 +1,8 @@
 # node-red-hysteresis
 
 [![npm version](https://badge.fury.io/js/@stefa168%2Fnode-red-hysteresis.svg)](https://badge.fury.io/js/@stefa168%2Fnode-red-hysteresis)
+![GitHub](https://img.shields.io/github/license/stefa168/node-red-hysteresis)
+![npm](https://img.shields.io/npm/dy/%40stefa168%2Fnode-red-hysteresis)
 
 Provides a hysteresis or deadband function.
 
