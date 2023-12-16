@@ -1,6 +1,6 @@
 {
   "name": "@stefa168/node-red-hysteresis",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Adds hysteresis function to node-red",
   "main": "hysteresis.js",
   "files": [
@@ -24,7 +24,7 @@
     "node-red"
   ],
   "node-red": {
-    "version": ">=2.0.0",
+    "version": ">=1.3.7",
     "nodes": {
       "hysteresis": "hysteresis.js"
     }
@@ -37,7 +37,8 @@
   "homepage": "https://github.com/Stefa168/node-red-hysteresis#readme",
   "devDependencies": {
     "eslint": "*",
+    "eslint-plugin-html": "*",
     "eslint-plugin-unicorn": "*",
-    "eslint-plugin-html": "*"
+    "@types/node-red": "^1.3.4"
   }
 }
