@@ -12,13 +12,16 @@
 
             InitialMessage: {checked: 'checked'},
 
-			OutRisingType: {value: ''},
+            HighBandRepeatedMessage: {checked: 'unchecked'},
+            LowBandRepeatedMessage: {checked: 'unchecked'},
+
+/*			OutRisingType: {value: ''},
 			OutRisingValue: {value: ''},
 			OutFallingType: {value: ''},
 			OutFallingValue: {value: ''},
 			OutTopicType: {value: ''},
 			OutTopicValue: {value: ''},
-			DynRaiseError: {checked: 'unchecked'}
+			DynRaiseError: {checked: 'unchecked'}*/
 		},
 		inputs: 1,
 		outputs: 1,
@@ -82,52 +85,66 @@
         <input type="checkbox" id="node-input-InitialMessage"
                style="margin-left: 0px; vertical-align: middle; width: auto !important;">
     </div>
+
+    <!-- Message emission repetitions -->
+    <div class="form-row">
+        <label style="width: auto !important" for="node-input-HighBandRepeatedMessage">Re-send message if still in High-Band</label>
+        <input type="checkbox" id="node-input-HighBandRepeatedMessage"
+               style="margin-left: 0px; vertical-align: middle; width: auto !important;">
+    </div>
+    <div class="form-row">
+        <label style="width: auto !important" for="node-input-LowBandRepeatedMessage">Re-send message if still in Low-Band</label>
+        <input type="checkbox" id="node-input-LowBandRepeatedMessage"
+               style="margin-left: 0px; vertical-align: middle; width: auto !important;">
+    </div>
 </script>
 
 <script type="text/x-red" data-help-name="hysteresis2">
-	<p>Provides a hysteresis or deadband function.</p>
-	<h3>Details</h3>
-	<p>When a message arrives, the node will evaluate if the <code>msg.payload</code> is above a defined 
-	<code>Upper Threshold</code> or  below a <code>Lower Threshold</code>, while taking
-	into account the previous value. Whenever this happens a <code>msg</code> is send to the output. Following 
-	rules do apply:
-	<ul>
-		<li><code>msg.payload</code> is greater than previous <code>msg.payload</code> AND <code>msg.payload</code> greater or equal 
-				<code>Upper Threshold</code> then send output</li>
-		<li><code>msg.payload</code> is lesser than previous <code>msg.payload</code> AND <code>msg.payload</code> lesser or equal 
-				<code>Lower Threshold</code> then send output</li>
-		<li><code>msg.payload</code> is greater than <code>Lower Threshold</code> but lower than <code>Upper Threshold</code> do nothing</li>
-		<li>Once a threshold has been hit, no new output will be send until the respective opposite threshold is triggered </li>
-	</ul>
-	<h4>Fixed versus Dynamic Thresholds</h4>
-	<p>In the node settings either fixed or dynamic threshold can be specified.</p>
-	<h5>Fixed Thresholds</h5>
-	<p>Fixed thresholds allows to directly specify a <code>Upper Threshold</code> and <code>Lower Threshold</code>.
-	Both values have to be valid float numbers.</p>
-	<h5>Dynamic Thresholds</h5>
-	<p>Dynamic thresholds expect following settings:</p>
-		<ul>
-			<li><code> Topic Threshold</code> specifies a message topic under which a triggering point is send as <code>msg.payload</code>.</li>
-			<li><code> Topic Current</code> specifies a message topic under which the current values are send. This values are then matched against 
-		the respective thresholds.</li>
-			<li><code>Hysteresis+</code> is the upper delta for the triggering point. The <code>msg.payload</code> from <code>Threshold Topic</code> 
-					plus the <code>Hysteresis+</code> value equals the <code>Upper Threshold</code>.</li>
-			<li><code>Hysteresis-</code> is the lower delta for the triggering point. The <code>msg.payload</code> from <code>Threshold Topic</code> 
-					minus the <code>Hysteresis-</code> value equals the <code>Lower Threshold</code>.</li>
-		</ul>
-		<p><b>Note:</b> The values set in dynamic mode will not survive a node-red deploy or restart.</p>
-		<h5>Send initial message</h5>
-		<p>After starting node-red or deploying the flow, the hysteresis node does not know any previous values nor is able to determine the direction 
-		how the values develop.
-		<code>Send initial message</code> will simply match the first valid value against the lower or upper limit and send an output if any of the 
-		levels is exceeded respectively underran.</p>
-	<h4>Output Options</h4>
-		<p>In the node Output settings either <code>Original Payload / Topic </code> or custom values can be specified.  </p>
-		<h4>Use cases</h4>
-		<p>In control systems, hysteresis can be used to filter signals so that the output reacts less rapidly than it otherwise would, by taking recent history 
-		into account. For example, a thermostat controlling a heater may switch the heater on when the temperature drops below A, but not turn it off until 
-		the temperature rises above B. For instance, if one wishes to maintain a temperature of 20 °C then one might set the thermostat to turn the heater on 
-		when the temperature drops to below 18 °C and off when the temperature exceeds 22 °C.</p> 
-		<p>Similarly, a pressure switch can be designed to exhibit hysteresis, with pressure set-points substituted for temperature thresholds.</p>
+    <p>This node implements a hysteresis or deadband function, effectively managing signal fluctuations within a defined
+        range.</p>
+    <h3>Key Functionalities</h3>
+    <p>Upon receiving a message, the node compares the value of the specified property path with the defined thresholds.
+        Depending on the value, the node may emit the received message.</p>
+    <p>The following cases are possible:</p>
+    <ul>
+        <li>The value is above the upper threshold: the node will emit the received message.</li>
+        <li>The value is below the lower threshold: the node will emit the received message.</li>
+        <li>The value is between the upper and lower threshold: the node will not emit the received message.</li>
+    </ul>
+
+    <p>Some exceptions to the above cases are possible, depending on the node settings:</p>
+    <ul>
+        <li>If the <strong>Send initial message</strong> option is enabled, the node will emit the received message
+            regardless of the value, but only once, when the flow is started.
+        </li>
+        <li>If the <strong>Re-send message if still in High-Band</strong> option is enabled, the node will emit the
+            received message if the value is still above the upper threshold.
+        </li>
+        <li>If the <strong>Re-send message if still in Low-Band</strong> option is enabled, the node will emit the
+            received message if the value is still below the lower threshold.
+        </li>
+    </ul>
+
+    <h3>Notes</h3>
+    <ul>
+        <li>When the flow is first started, the node won't have any previous value to compare with, so the node will
+            emit the received message regardless of the value. This behaviour can be disabled by unchecking the <strong>Send
+                initial message</strong> option.
+        </li>
+        <li>The node can only handle numerical values. If the value of the specified property path is not numerical, the
+            node will throw an error.
+        </li>
+        <li>In control systems, hysteresis can be used to filter signals so that the output reacts less rapidly than it
+            otherwise would, by taking recent history into account.
+
+            For example, a thermostat controlling a heater may switch the heater on when the temperature drops below A,
+            but not turn it off until the temperature rises above B. For instance, if one wishes to maintain a
+            temperature of 20 °C then one might set the thermostat to turn the heater on when the temperature drops to
+            below 18 °C and off when the temperature exceeds 22 °C.
+
+            Similarly, a pressure switch can be designed to exhibit hysteresis, with pressure set-points substituted for
+            temperature thresholds.
+        </li>
+    </ul>
 
 </script>

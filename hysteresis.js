@@ -24,6 +24,9 @@ module.exports = function (RED) {
 
 		this.propertyType = config.PayloadPropertyType ?? 'msg';
 
+		this.HighBandRepeatedMessage = config.HighBandRepeatedMessage;
+		this.LowBandRepeatedMessage = config.LowBandRepeatedMessage;
+
 		/* Execution */
 		// Retrieve the last value from the context
 		node.direction = nodeContext.get('direction') ?? undefined;
@@ -98,7 +101,7 @@ module.exports = function (RED) {
 				}
 			} else if (node.lastValue !== undefined) {
 				// Rising Value Logic: Determines behavior when the current value is increasing.
-				if (currentValue > node.lastValue) {
+				if (currentValue >= node.lastValue) {
 					// High Threshold Crossing: Detects transition into the high state.
 					if (currentValue >= ThresholdRising) {
 						// State Change to High: Triggers when moving from a non-high state to a high state.
@@ -111,6 +114,12 @@ module.exports = function (RED) {
 						} else {
 							// Stabilization: Remains in high state without further action.
 							setStatus('green', 'dot', 'high band rising');
+
+							// Send a message if the high band repeated message is enabled. This will allow the node to send
+							// a message every time the received value is above the rising threshold
+							if (node.HighBandRepeatedMessage) {
+								send(newMessage);
+							}
 						}
 					}
 					// Dead Band Logic (Rising): Handles values between thresholds, stabilizing output.
@@ -124,10 +133,16 @@ module.exports = function (RED) {
 					// Low Band Stabilization: Maintains low state, preventing frequent state toggling.
 					else if (currentValue <= ThresholdFalling && node.direction === 'low') {
 						setStatus('blue', 'dot', 'low band rising');
+
+						// Send a message if the low band repeated message is enabled. This will allow the node to send
+						// a message every time the received value is below the falling threshold
+						if (node.LowBandRepeatedMessage) {
+							send(newMessage);
+						}
 					}
 				}
 				// Falling Value Logic: Determines behavior when the current value is decreasing.
-				else if (currentValue < node.lastValue) {
+				else if (currentValue <= node.lastValue) {
 					// Low Threshold Crossing: Detects transition into the low state.
 					if (currentValue <= ThresholdFalling) {
 						// State Change to Low: Triggers when moving from a non-low state to a low state.
@@ -140,6 +155,12 @@ module.exports = function (RED) {
 						} else {
 							// Stabilization: Remains in low state without further action.
 							setStatus('blue', 'dot', 'low band falling');
+
+							// Send a message if the low band repeated message is enabled. This will allow the node to send
+							// a message every time the received value is below the falling threshold
+							if (node.LowBandRepeatedMessage) {
+								send(newMessage);
+							}
 						}
 					}
 					// Dead Band Logic (Falling): Manages values within thresholds, ensuring stability.
@@ -153,8 +174,33 @@ module.exports = function (RED) {
 					// High Band Stabilization: Maintains high state, preventing frequent state changes.
 					else if (currentValue >= ThresholdRising && node.direction === 'high') {
 						setStatus('green', 'dot', 'high band falling');
+
+						// Send a message if the high band repeated message is enabled. This will allow the node to send
+						// a message every time the received value is above the rising threshold
+						if (node.HighBandRepeatedMessage) {
+							send(newMessage);
+						}
 					}
-				}
+				}/* else {
+					// Stabilization: Remains in current state without further action.
+					if (node.direction === 'high') {
+						setStatus('green', 'dot', 'high band stable');
+
+						// Send a message if the high band repeated message is enabled. This will allow the node to send
+						// a message every time the received value is above the rising threshold
+						if (node.HighBandRepeatedMessage) {
+							send(newMessage);
+						}
+					} else if (node.direction === 'low') {
+						setStatus('blue', 'dot', 'low band stable');
+
+						// Send a message if the low band repeated message is enabled. This will allow the node to send
+						// a message every time the received value is below the falling threshold
+						if (node.LowBandRepeatedMessage) {
+							send(newMessage);
+						}
+					}
+				}*/
 			}
 
 			if (newDirection !== undefined) {
