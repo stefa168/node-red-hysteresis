@@ -5,14 +5,13 @@
 		defaults: {
 			name: {value: ''},
 			PayloadProperty: {value: 'payload', required: true},
-			ThresholdType: {value: 'fixed'},
-			ThresholdRising: {value: ''},
+			PayloadPropertyType: {value: 'msg'},
+
+            ThresholdRising: {value: ''},
 			ThresholdFalling: {value: ''},
-			TopicThreshold: {value: ''},
-			TopicCurrent: {value: ''},
-			ThresholdDeltaRising: {value: ''},
-			ThresholdDeltaFalling: {value: ''},
-			InitialMessage: {checked: 'checked'},
+
+            InitialMessage: {checked: 'checked'},
+
 			OutRisingType: {value: ''},
 			OutRisingValue: {value: ''},
 			OutFallingType: {value: ''},
@@ -31,41 +30,10 @@
 			return this.name ? 'node_label_italic' : '';
 		},
 		oneditprepare: function () {
-			$('#node-input-ThresholdType').change(function () {
-				if ($(this).val() === 'fixed') {
-					$('.form-row-ThresholdTypeFixed').show();
-					$('.form-row-ThresholdTypeDynamic').hide();
-				} else {
-					$('.form-row-ThresholdTypeFixed').hide();
-					$('.form-row-ThresholdTypeDynamic').show();
-				}
-			});
-
-			// Define the new option for specifying the payload object property
-			// var optionPayloadProperty = {value: 'prop', label: 'Payload Property', hasValue: true};
-
-			$('#node-input-OutRisingValue').typedInput({
-				default: 'pay',
-				typeField: $('#node-input-OutRisingType'),
-				types: ['str', 'num', 'bool', optionPayloadProperty] // Add optionPayloadProperty to the types
-			});
-
-			$('#node-input-OutFallingValue').typedInput({
-				default: 'pay',
-				typeField: $('#node-input-OutFallingType'),
-				types: ['str', 'num', 'bool', optionPayloadProperty] // Add optionPayloadProperty to the types
-			});
-
-			$('#node-input-OutTopicValue').typedInput({
-				default: 'top',
-				typeField: $('#node-input-OutTopicType'),
-				types: ['str', optionOriginalTopic]
-			});
-
-			$('#node-input-propertyType').typedInput({
-                type: "msg",
-				types: ["msg"],
-				typeField: '#node-input-propertyType'
+			$("#node-input-PayloadProperty").typedInput({
+                default: 'msg',
+				types: ['msg', 'flow', 'global'],
+				typeField: "#node-input-PayloadPropertyType"
             });
 		}
 	});
@@ -75,7 +43,7 @@
     <!-- Name field setting -->
     <div class="form-row">
         <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
-        <input type="text" id="node-input-name" placeholder="name">
+        <input type="text" id="node-input-name" placeholder="Node name">
     </div>
 
     <!-- Payload field setting -->
@@ -84,21 +52,13 @@
             <i class="fa fa-code"></i> Payload Property
         </label>
         <input type="text" id="node-input-PayloadProperty">
-        <input type="hidden" id="node-input-propertyType">
+        <input type="hidden" id="node-input-PayloadPropertyType">
     </div>
 
     <!-- Threshold Settings -->
     <div class="form-row">
         <label style="width: 140px !important;"><strong>Threshold Settings</strong></label>
     </div>
-    <!--    <div class="form-row">
-            <label style="width: 140px !important" for="node-input-ThresholdType"><i class="fa fa-wrench"></i> Threshold
-                Type</label>
-            <select id="node-input-ThresholdType" style="width: 280px">
-                <option value="fixed">Fixed</option>
-                <option value="dynamic">Dynamic</option>
-            </select>
-        </div>-->
     <!-- Fixed Threshold -->
     <div class="form-row form-row-ThresholdTypeFixed">
         <label style="width: 140px !important" for="node-input-ThresholdRising">
@@ -113,33 +73,6 @@
         <input type="text" id="node-input-ThresholdFalling" placeholder="value" style="width: 280px">
     </div>
 
-    <!-- Dynamic Threshold -->
-<!--    <div class="form-row form-row-ThresholdTypeDynamic">
-        <label style="width: 140px !important" for="node-input-TopicThreshold"><i class="fa fa-tasks"></i> Topic
-            Threshold</label>
-        <input type="text" id="node-input-TopicThreshold" placeholder="value" style="width: 280px">
-    </div>
-    <div class="form-row form-row-ThresholdTypeDynamic">
-        <label style="width: 140px !important" for="node-input-TopicCurrent"><i class="fa fa-tasks"></i> Topic
-            Current</label>
-        <input type="text" id="node-input-TopicCurrent" placeholder="value" style="width: 280px">
-    </div>
-    <div class="form-row form-row-ThresholdTypeDynamic">
-        <label style="width: 140px !important" for="node-input-ThresholdDeltaRising"><i class="fa fa-plus-square"></i>
-            Hysteresis +</label>
-        <input type="text" id="node-input-ThresholdDeltaRising" placeholder="value" style="width: 280px">
-    </div>
-    <div class="form-row form-row-ThresholdTypeDynamic">
-        <label style="width: 140px !important" for="node-input-ThresholdDeltaFalling"><i class="fa fa-minus-square"></i>
-            Hysteresis -</label>
-        <input type="text" id="node-input-ThresholdDeltaFalling" placeholder="value" style="width: 280px">
-    </div>
-    <div class="form-row form-row-ThresholdTypeDynamic">
-        <label style="width: 140px !important;" for="node-input-DynRaiseError">Raise error on missing threshold</label>
-        <input type="checkbox" id="node-input-DynRaiseError"
-               style="margin-left: 0px; vertical-align: middle; width: auto !important;">
-    </div>-->
-
     <!-- Output Settings -->
     <div class="form-row">
         <label style="width: 140px !important;"><strong>Output Settings</strong></label>
@@ -149,26 +82,6 @@
         <input type="checkbox" id="node-input-InitialMessage"
                style="margin-left: 0px; vertical-align: middle; width: auto !important;">
     </div>
-    <!--    <div class="form-row">
-            <label style="width: 140px !important" for="node-input-OutRisingType"><i class="fa fa-sign-out"></i> Upper
-                Threshold</label>
-            <input type="hidden" id="node-input-OutRisingType">
-            <input type="text" id="node-input-OutRisingValue" style="width: 280px">
-        </div>
-        <div class="form-row">
-            <label style="width: 140px !important" for="node-input-OutFallingType"><i class="fa fa-sign-out"></i> Lower
-                Threshold</label>
-            <input type="hidden" id="node-input-OutFallingType">
-            <input type="text" id="node-input-OutFallingValue" style="width: 280px">
-        </div>
-        <div class="form-row">
-            <label style="width: 140px !important" for="node-input-OutTopicType"><i class="fa fa-sign-out"></i>
-                Topic</label>
-            <input type="hidden" id="node-input-OutTopicType">
-            <input type="text" id="node-input-OutTopicValue" style="width: 280px">
-        </div>-->
-
-
 </script>
 
 <script type="text/x-red" data-help-name="hysteresis2">

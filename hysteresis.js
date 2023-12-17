@@ -22,6 +22,8 @@ module.exports = function (RED) {
 		node.initialMessage = config.InitialMessage;
 		this.property = config.PayloadProperty ?? 'payload';
 
+		this.propertyType = config.PayloadPropertyType ?? 'msg';
+
 		/* Execution */
 		// Retrieve the last value from the context
 		node.direction = nodeContext.get('direction') ?? undefined;
@@ -43,13 +45,12 @@ module.exports = function (RED) {
 			// Since the return value is 'any', we need to parse it to a number.
 			// If the message property does not exist, we will get `undefined`, and `Number(undefined)` returns `NaN`.
 			// Because of this, we need to be sure that we got a number.
-			// https://nodered.org/docs/api/modules/v/1.3/@node-red_util_util.html#.getMessageProperty
-			const currentValue = Number(RED.util.getMessageProperty(msg, node.property));
+			const currentValue = Number(RED.util.evaluateNodeProperty(node.property, node.propertyType, node, msg));
 
 			// Check if the value is a number
 			if (Number.isNaN(currentValue)) {
 				node.status({fill: 'red', shape: 'ring', text: 'Payload is not a number'});
-				const err = new Error('Payload is not a number');
+				const err = new Error(`Payload "${currentValue}" is not a number`);
 				done(err);
 			}
 
