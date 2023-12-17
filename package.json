@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Stefa168/node-red-hysteresis"
+    "url": "git+https://github.com/Stefa168/node-red-hysteresis.git"
   },
   "keywords": [
     "hysteresis",
