@@ -1,0 +1,144 @@
+[
+    {
+        "id": "d054da29f4d836b5",
+        "type": "tab",
+        "label": "Example Hysteresis flow",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "0295ba7be9269c69",
+        "type": "junction",
+        "z": "d054da29f4d836b5",
+        "x": 400,
+        "y": 500,
+        "wires": [
+            [
+                "4c0371d7fc530628"
+            ]
+        ]
+    },
+    {
+        "id": "357b7bfaddc8aea0",
+        "type": "debug",
+        "z": "d054da29f4d836b5",
+        "name": "debug 1",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 700,
+        "y": 500,
+        "wires": []
+    },
+    {
+        "id": "e106ca14bf42b73a",
+        "type": "inject",
+        "z": "d054da29f4d836b5",
+        "name": "Inject low band signal",
+        "props": [
+            {
+                "p": "payload.test",
+                "v": "10",
+                "vt": "num"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 240,
+        "y": 440,
+        "wires": [
+            [
+                "0295ba7be9269c69"
+            ]
+        ]
+    },
+    {
+        "id": "3e7b7882615791e0",
+        "type": "inject",
+        "z": "d054da29f4d836b5",
+        "name": "Inject high band signal",
+        "props": [
+            {
+                "p": "payload.test",
+                "v": "25",
+                "vt": "num"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 240,
+        "y": 560,
+        "wires": [
+            [
+                "0295ba7be9269c69"
+            ]
+        ]
+    },
+    {
+        "id": "830135d069afec32",
+        "type": "inject",
+        "z": "d054da29f4d836b5",
+        "name": "Inject dead band signal",
+        "props": [
+            {
+                "p": "payload.test",
+                "v": "18",
+                "vt": "num"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "x": 240,
+        "y": 500,
+        "wires": [
+            [
+                "0295ba7be9269c69"
+            ]
+        ]
+    },
+    {
+        "id": "4c0371d7fc530628",
+        "type": "hysteresis2",
+        "z": "d054da29f4d836b5",
+        "name": "",
+        "PayloadProperty": "payload.test",
+        "PayloadPropertyType": "msg",
+        "ThresholdRising": "20",
+        "ThresholdFalling": "11",
+        "InitialMessage": true,
+        "HighBandRepeatedMessage": true,
+        "LowBandRepeatedMessage": true,
+        "x": 500,
+        "y": 500,
+        "wires": [
+            [
+                "357b7bfaddc8aea0"
+            ]
+        ]
+    },
+    {
+        "id": "7d0e91acf7d8e251",
+        "type": "comment",
+        "z": "d054da29f4d836b5",
+        "name": "Read me! :)",
+        "info": "This is a barebones example of how a hysteresis node could be set up.\n\nOn the left, three injections can be used to test the node.\n\nYou'll see that different things are possible:\n - Intection with a nested property path\n - Hysteresis with first message emission\n - Consequent same-band message emission",
+        "x": 190,
+        "y": 340,
+        "wires": []
+    }
+]

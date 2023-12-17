@@ -1,6 +1,6 @@
 {
   "name": "@stefa168/node-red-hysteresis",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "Adds hysteresis function to node-red",
   "main": "hysteresis.js",
   "files": [
